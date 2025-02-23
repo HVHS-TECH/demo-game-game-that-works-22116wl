@@ -99,7 +99,11 @@ function gameScreen() {
     }
 
     for (var i = 0; i < coins.length; i++) {
-        coins[i].timeRemaining --;
+        cache
+
+        if (coins[i].spawnTime + 50 < millis()) {
+            coins[i].remove()  
+        }
     }
     
     if (frameCount % 60 == 0) {
