@@ -1,4 +1,4 @@
-const movementSpeed = 5;
+const movementSpeed = 10;
 const wallThickness = 3;
 var backgroundColour;
 
@@ -32,29 +32,55 @@ function setup() {
 function draw() {
     if (scene == 'game') { gameScreen() }
     if (scene == 'menu') { menuScreen() }
+    if (scene == 'finished') { finishedScreen() }
 }
 
 function newCoin() {
     coin = new Sprite(random(0, windowWidth), random(0, windowHeight), 40);
+    coin.color = 'yellow';
     coins.add(coin);
+    coins.timeRemaining = 5*60;
 }
 
 function menuScreen() {
     allSprites.visible = false;
     background('cyan');
 
-    textSize(50);
+    textSize(80);
     fill("#FFFFFF");
     textAlign('center');
-    text("Press 'Space' to begin!", windowWidth/2, windowHeight/2);
+    text("Game that works!", windowWidth/2, windowHeight/2 - 50);
+
+    textSize(40);
+    text("Press 'Space' to begin!", windowWidth/2, windowHeight/2 + 20);
 
     if (kb.pressing('space')) {
-        scene = 'game'
-        newCoin()
+        scene = 'game';
+        score = 0;
+        timer = 20;
+        newCoin();
     }
 }
 
-var counter = 0;
+function finishedScreen() {
+    background('cyan');
+    allSprites.visible = false;
+
+    textSize(35);
+    fill("#FFFFFF");
+    textAlign('center');
+    text("Game Finished!", windowWidth/2, windowHeight/2 - 50);
+    text("Final Score: " + score, windowWidth/2, windowHeight/2 - 10);
+
+    text("Press 'Esc' to return to menu", windowWidth/2, windowHeight/2 + 60);
+
+    if (kb.pressing('escape')) {
+        scene = 'menu';
+    }
+}
+
+var timer;
+
 function gameScreen() {
     background('#FFFFFF');
     allSprites.visible = true;
@@ -64,10 +90,25 @@ function gameScreen() {
     textSize(30);
     text('Score: ' + score, 20, 40);
 
-    counter ++;
-    if (counter > 200) {
+    textAlign('right');
+    text('Time Remaining: ' + timer, windowWidth-20, 40);
+
+    if (frameCount % 120 == 0) {
         counter = 0;
         newCoin();
+    }
+
+    for (var i = 0; i < coins.length; i++) {
+        coins[i].timeRemaining --;
+    }
+    
+    if (frameCount % 60 == 0) {
+        timer --;
+    }
+
+    if (timer <= 0) {
+        scene = 'finished';
+        coins.removeAll();
     }
 
     // Player movement
