@@ -1,4 +1,5 @@
-const movementSpeed = 10;
+var movementSpeed = 10;
+
 const coinTimer = 7;
 var backgroundColour;
 
@@ -13,17 +14,41 @@ function setup() {
     cnv = new Canvas(windowWidth, windowHeight);
     player = new Sprite(windowWidth/2, windowHeight/2, 100, 100, "k");  
     player.color = 'cyan';
+    player.powerUpsApplied = 0;
 
     coins = new Group()
+    powerups = new Group()
     scene = 'menu';
-
-    function deleteCoin(collider1, collider2) {
-		// Delete the alien which was hit
-		collider2.remove();
+    
+	player.collides(coins, function(collider1, collider2){
+        collider2.remove();
         score ++;
-	}
+    });
 
-	player.collides(coins, deleteCoin);
+
+    player.collides(powerups, function(collider1, powerUp){
+        player.powerUpsApplied ++;
+        console.log('Power Up!');
+
+        effect = powerUp.Effect
+        strength = powerUp.Strength
+
+        if (effect == 'SpeedBoost') { movementSpeed *= strength; }
+
+        player.color = 'orange';
+
+        
+        setTimeout(function() {
+          if (effect == 'SpeedBoost') { movementSpeed /= strength; }
+          player.powerUpsApplied --;
+          
+          if (player.powerUpsApplied <= 0) {
+            player.color = 'cyan';
+          }
+        }, powerUp.Duration);
+        
+        powerUp.remove();
+    });
 }
 
 function startGame() {
@@ -31,8 +56,8 @@ function startGame() {
     score = 0;
     coinDelay = 100;
 
-    player.x = windowWidth/2
-    player.y = windowHeight/2
+    player.x = windowWidth/2;
+    player.y = windowHeight/2;
 
     newCoin();
 }
@@ -49,6 +74,17 @@ function newCoin() {
     coin.spawnTime = millis();
 
     coins.add(coin);
+}
+
+function newPowerup() {
+    powerup = new Sprite(random(0, windowWidth), random(0, windowHeight), 40);
+    powerup.color = 'red';
+ 
+    powerup.Effect = "SpeedBoost";
+    powerup.Strength = random(1, 2);
+    powerup.Duration =  random(5000, 15000);
+
+    powerups.add(powerup);
 }
 
 
@@ -146,6 +182,10 @@ function gameScreen() {
         rect(coin.x - 20, coin.y + 35, (1 - (millis() - coin.spawnTime)/(coinTimer*1000)) * 40, 10);
     }
     
+    //Poweup Generation
+    if (random(1, 5000) < 5) {
+        newPowerup()
+    }
 
     // Player movement
 
