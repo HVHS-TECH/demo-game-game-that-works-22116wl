@@ -10,6 +10,8 @@ var highScore = score;
 
 var mouseControl = true;
 
+var coinGravityStrength = 0;
+
 function setup() {
     cnv = new Canvas(windowWidth, windowHeight);
     player = new Sprite(windowWidth/2, windowHeight/2, 100, 100, "k");  
@@ -34,12 +36,14 @@ function setup() {
         strength = powerUp.Strength
 
         if (effect == 'SpeedBoost') { movementSpeed *= strength; }
+        if (effect == 'Gravity') { coinGravityStrength += strength; }
 
         player.color = 'orange';
 
         
         setTimeout(function() {
           if (effect == 'SpeedBoost') { movementSpeed /= strength; }
+          if (effect == 'Gravity') { coinGravityStrength -= strength; }
           player.powerUpsApplied --;
           
           if (player.powerUpsApplied <= 0) {
@@ -80,7 +84,15 @@ function newPowerup() {
     powerup = new Sprite(random(0, windowWidth), random(0, windowHeight), 40);
     powerup.color = 'red';
  
-    powerup.Effect = "SpeedBoost";
+    var effectNum = random(0, 2)
+
+
+    if (effectNum < 1) {
+        powerup.Effect = "SpeedBoost";
+    } else if (effectNum < 2) {
+        powerup.Effect = "Gravity";
+    }
+
     powerup.Strength = random(1, 2);
     powerup.Duration =  random(5000, 15000);
 
@@ -187,6 +199,15 @@ function gameScreen() {
         newPowerup()
     }
 
+    for (var i = 0; i < coins.length; i++) {
+        coin = coins[i];
+        
+        angle = Math.atan2(coin.y-player.y, coin.x - player.x);
+
+        coin.vel.x = Math.cos(angle) * -coinGravityStrength;
+        coin.vel.y = Math.sin(angle) * -coinGravityStrength;
+    }
+
     // Player movement
 
     if (mouseControl == false) {
@@ -198,7 +219,7 @@ function gameScreen() {
         else if (kb.pressing('D') && player.x < windowWidth - 50 ) { player.vel.x = movementSpeed; }
         else { player.vel.x = 0 }
     } else if (mouseControl == true) {
-        angle = Math.atan2(mouseY-player.y, (mouseX - player.x));
+        angle = Math.atan2((mouseY-player.y), (mouseX - player.x));
 
         player.vel.x = Math.cos(angle) * movementSpeed;
         player.vel.y = Math.sin(angle) * movementSpeed;
