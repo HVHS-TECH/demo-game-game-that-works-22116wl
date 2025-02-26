@@ -11,12 +11,12 @@ var highScore = score;
 var mouseControl = true;
 
 var coinGravityStrength = 0;
+var powerUpsApplied = 0;
 
 function setup() {
     cnv = new Canvas(windowWidth, windowHeight);
     player = new Sprite(windowWidth/2, windowHeight/2, 100, 100, "k");  
     player.color = 'cyan';
-    player.powerUpsApplied = 0;
 
     coins = new Group()
     powerups = new Group()
@@ -29,11 +29,11 @@ function setup() {
 
 
     player.collides(powerups, function(collider1, powerUp){
-        player.powerUpsApplied ++;
+        powerUpsApplied ++;
         console.log('Power Up!');
 
-        effect = powerUp.Effect
-        strength = powerUp.Strength
+        let effect = powerUp.Effect
+        let strength = powerUp.Strength
 
         if (effect == 'SpeedBoost') { movementSpeed *= strength; }
         if (effect == 'Gravity') { coinGravityStrength += strength; }
@@ -44,7 +44,7 @@ function setup() {
         setTimeout(function() {
           if (effect == 'SpeedBoost') { movementSpeed /= strength; }
           if (effect == 'Gravity') { coinGravityStrength -= strength; }
-          player.powerUpsApplied --;
+          powerUpsApplied --;
           
           if (player.powerUpsApplied <= 0) {
             player.color = 'cyan';
@@ -59,6 +59,8 @@ function startGame() {
     scene = 'game';
     score = 0;
     coinDelay = 100;
+
+    player.color = 'cyan';
 
     player.x = windowWidth/2;
     player.y = windowHeight/2;
