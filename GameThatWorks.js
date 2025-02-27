@@ -13,6 +13,14 @@ var mouseControl = true;
 var coinGravityStrength = 0;
 var powerUpsApplied = 0;
 
+
+function preload() {
+    coinIMG = loadImage('images/coin.png');
+    speedBoostIMG = loadImage('images/SpeedBoost.png');
+    magnetIMG = loadImage('images/Magnet.png');
+    
+}
+
 function setup() {
     cnv = new Canvas(windowWidth, windowHeight);
     player = new Sprite(windowWidth/2, windowHeight/2, 100, 100, "k");  
@@ -30,7 +38,7 @@ function setup() {
 
     player.collides(powerups, function(collider1, powerUp){
         powerUpsApplied ++;
-        console.log('Power Up!');
+        console.log('plus : ' + powerUpsApplied);
 
         let effect = powerUp.Effect
         let strength = powerUp.Strength
@@ -42,13 +50,16 @@ function setup() {
 
         
         setTimeout(function() {
-          if (effect == 'SpeedBoost') { movementSpeed /= strength; }
-          if (effect == 'Gravity') { coinGravityStrength -= strength; }
-          powerUpsApplied --;
-          
-          if (player.powerUpsApplied <= 0) {
+            if (effect == 'SpeedBoost') { movementSpeed /= strength; }
+            if (effect == 'Gravity') { coinGravityStrength -= strength; }
+            powerUpsApplied --;
+            console.log('minus : ' + powerUpsApplied);
+        
+
+            
+            if (powerUpsApplied <= 0) {
             player.color = 'cyan';
-          }
+            }
         }, powerUp.Duration);
         
         powerUp.remove();
@@ -78,6 +89,7 @@ function newCoin() {
     coin = new Sprite(random(0, windowWidth), random(0, windowHeight), 40);
     coin.color = 'yellow';
     coin.spawnTime = millis();
+    coin.image = coinIMG;
 
     coins.add(coin);
 }
@@ -91,8 +103,10 @@ function newPowerup() {
 
     if (effectNum < 1) {
         powerup.Effect = "SpeedBoost";
+        powerup.image = speedBoostIMG;
     } else if (effectNum < 2) {
         powerup.Effect = "Gravity";
+        powerup.image = magnetIMG;
     }
 
     powerup.Strength = random(1, 2);
