@@ -15,10 +15,9 @@ var powerUpsApplied = 0;
 
 
 function preload() {
-    coinIMG = loadImage('images/coin.png');
-    speedBoostIMG = loadImage('images/SpeedBoost.png');
-    magnetIMG = loadImage('images/Magnet.png');
-    
+    coinIMG = loadImage('coin.png');
+    speedBoostIMG = loadImage('SpeedBoost.png');
+    magnetIMG = loadImage('Magnet.png');
 }
 
 function setup() {
@@ -66,6 +65,10 @@ function setup() {
     });
 }
 
+function getDist(x1, y1, x2, y2) {
+    return Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) );
+}
+
 function startGame() {
     scene = 'game';
     score = 0;
@@ -89,6 +92,7 @@ function newCoin() {
     coin = new Sprite(random(0, windowWidth), random(0, windowHeight), 40);
     coin.color = 'yellow';
     coin.spawnTime = millis();
+    coinIMG.resize(50, 50);
     coin.image = coinIMG;
 
     coins.add(coin);
@@ -101,11 +105,13 @@ function newPowerup() {
     var effectNum = random(0, 2)
 
 
-    if (effectNum < 1) {
+    if (effectNum < 0.8) {
         powerup.Effect = "SpeedBoost";
+        speedBoostIMG.resize(50, 50);
         powerup.image = speedBoostIMG;
     } else if (effectNum < 2) {
         powerup.Effect = "Gravity";
+        magnetIMG.resize(50, 50);
         powerup.image = magnetIMG;
     }
 
@@ -220,8 +226,15 @@ function gameScreen() {
         
         angle = Math.atan2(coin.y-player.y, coin.x - player.x);
 
-        coin.vel.x = Math.cos(angle) * -coinGravityStrength;
-        coin.vel.y = Math.sin(angle) * -coinGravityStrength;
+
+        distance = getDist(coin.x, coin.y, player.x, player.y);
+
+        //let dist = 20;
+        distance = 750 - distance;
+        if (distance < 0) { distance = 0; }
+
+        coin.vel.x = Math.cos(angle) * -coinGravityStrength * distance/200;
+        coin.vel.y = Math.sin(angle) * -coinGravityStrength * distance/200;
     }
 
     // Player movement
@@ -235,9 +248,14 @@ function gameScreen() {
         else if (kb.pressing('D') && player.x < windowWidth - 50 ) { player.vel.x = movementSpeed; }
         else { player.vel.x = 0 }
     } else if (mouseControl == true) {
-        angle = Math.atan2((mouseY-player.y), (mouseX - player.x));
-
-        player.vel.x = Math.cos(angle) * movementSpeed;
-        player.vel.y = Math.sin(angle) * movementSpeed;
+        if (getDist(player.x, player.y, mouseX, mouseY) > 5) {
+            angle = Math.atan2((mouseY-player.y), (mouseX - player.x));
+    
+            player.vel.x = Math.cos(angle) * movementSpeed;
+            player.vel.y = Math.sin(angle) * movementSpeed;
+        } else {
+            player.vel.x = 0;
+            player.vel.y = 0;
+        }
     }
 }
