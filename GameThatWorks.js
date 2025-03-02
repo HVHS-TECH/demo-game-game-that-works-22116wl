@@ -49,12 +49,16 @@ function setup() {
 
         
         setTimeout(function() {
+            //if powerupsapplied is 0 and this script is trying to end a powerup then a new game has been initiated,
+            // don't remove effects from previous game as they already have been removed
+            if (powerUpsApplied == 0) { return; }
+
             if (effect == 'SpeedBoost') { movementSpeed /= strength; }
             if (effect == 'Gravity') { coinGravityStrength -= strength; }
             powerUpsApplied --;
             console.log('minus : ' + powerUpsApplied);
         
-
+            
             
             if (powerUpsApplied <= 0) {
             player.color = 'cyan';
@@ -74,6 +78,11 @@ function startGame() {
     score = 0;
     coinDelay = 100;
 
+    coinGravityStrength = 0;
+    movementSpeed = 10;
+
+    powerUpsApplied = 0;
+
     player.color = 'cyan';
 
     player.x = windowWidth/2;
@@ -90,7 +99,6 @@ function draw() {
 
 function newCoin() {
     coin = new Sprite(random(0, windowWidth), random(0, windowHeight), 40);
-    coin.color = 'yellow';
     coin.spawnTime = millis();
     coinIMG.resize(50, 50);
     coin.image = coinIMG;
